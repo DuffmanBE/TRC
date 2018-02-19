@@ -1,0 +1,27 @@
+<html>
+
+<script src='clientlib/rx.all.js'></script>
+
+<body>
+    <li id='users'>
+    </li>
+    <button id='join'>Join
+    </button>   
+</body>
+
+<script>
+    console.log("start");
+
+    const joinButton = document.getElementById('join');
+    const joinButtonClicked = Rx.Observable.fromEvent(joinButton, 'click');
+
+    joinButtonClicked.subscribe(function (e)
+    {
+      
+    });
+
+    console.log("end");
+</script>
+
+
+</html>
