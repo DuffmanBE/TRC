@@ -3,22 +3,70 @@
 <script src='clientlib/rx.all.js'></script>
 
 <body>
-    <li id='users'>
-    </li>
-    <button id='join'>Join
-    </button>   
+    <ul id='users'>
+    </ul>
+    <input id='userName'/>
+    <button id='add'>Add</button>   
+    <button id='remove'>Remove</button>   
 </body>
 
 <script>
+
+    const Trc = {};
+
+    Trc.URL = 'ws://localhost:8080/';
+    const socketSub = Rx.Observable.webSocket(Trc.URL);
+    Trc.id = 0;
+
+    Trc.connect =
+        function (name)
+        {
+            let cmd = name;
+            let interface = {};
+            interface.filter = function (f)
+                {
+                    cmd += ".filter(" + f.toString() + ")";
+                    return interface;
+                }
+            
+            interface.now = function (cb)
+            {
+                const id = Trc.id++;
+                socketSub.next(JSON.stringify({id,cmd}));
+                cmd = "";
+                return socketSub; //filter(msg => msg.id === id);
+            }
+            return interface;
+        }
+
+    function ulSubscriber(ul)
+    {
+        return function (x)
+        {
+            // while (ul.firstChild)
+            // {
+            //     ul.removeChild(ul.firstChild);
+            // }
+            // for (const x of state)
+            {
+                const li = document.createElement("li");
+                li.appendChild(document.createTextNode(x));
+                ul.appendChild(li);
+            }
+        }
+    }
+
     console.log("start");
 
-    const joinButton = document.getElementById('join');
-    const joinButtonClicked = Rx.Observable.fromEvent(joinButton, 'click');
+    const addButton = document.getElementById('add');
+    const addButtonClicked = Rx.Observable.fromEvent(addButton, 'click')
+        .map(_ => document.getElementById('userName').value);
+    
+    const users = Trc.connect("users").filter(x => x % 2);
 
-    joinButtonClicked.subscribe(function (e)
-    {
-      
-    });
+    const usersUl = document.getElementById('users');
+
+    users.now(state => 123).subscribe(console.log);
 
     console.log("end");
 </script>
